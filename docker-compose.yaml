@@ -40,7 +40,7 @@ services:
     depends_on:
       - redis
 
-### use this inference node decalration if no CUDA
+### use this inference node if using cpu only
   # inference_node:
   #   build: ./inference_node
   #   environment:

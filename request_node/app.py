@@ -139,10 +139,7 @@ def get_result(job_id):
         'result': results
     }
 
-    return jsonify(response_payload), 200, {
-        'Content-Disposition': f'attachment; filename={zip_name}.zip',
-        'X-Results-Zip': f'/download-results/{job_id}'
-    }
+    return jsonify(response_payload), 200
 
 # Additional route for downloading ZIP separately
 @app.route('/download-results/<job_id>', methods=['GET'])
