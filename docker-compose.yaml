@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  request_node_1:
+    build: ./request_node
+    environment:
+      - DATA_FOLDER=/data
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    volumes:
+      - ./data:/data
+    depends_on:
+      - redis
+
+  request_node_2:
+    build: ./request_node
+    environment:
+      - DATA_FOLDER=/data
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    volumes:
+      - ./data:/data
+    depends_on:
+      - redis
+
+  request_node_3:
+    build: ./request_node
+    environment:
+      - DATA_FOLDER=/data
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    volumes:
+      - ./data:/data
+    depends_on:
+      - redis
+
+### use this inference node decalration if no CUDA
+  # inference_node:
+  #   build: ./inference_node
+  #   environment:
+  #     - DATA_FOLDER=/data
+  #     - REDIS_HOST=redis
+  #     - REDIS_PORT=6379
+  #     - BATCH_SIZE=16
+  #   volumes:
+  #     - ./data:/data
+  #   depends_on:
+  #     - redis
+
+  ### use this inference node if have CUDA
+  inference_node:
+    build: ./inference_node
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    environment:
+      - DATA_FOLDER=/data
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - BATCH_SIZE=16
+    volumes:
+      - ./data:/data
+    depends_on:
+      - redis
+
+  request_lb:
+    build: ./nginx_request_lb
+    ports:
+      - "5000:5000"
+    depends_on:
+      - request_node_1
+      - request_node_2
+      - request_node_3
